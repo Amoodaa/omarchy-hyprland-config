@@ -1,11 +1,12 @@
-Cloning from disk to disk:
+### Cloning from disk to disk:
 - Clone disk / partitions 
 - You need the ESP / EFI partition to have limine
 - Modify limine.conf on new disk to use correct PARTUUID= (no captial letters are allowed) so you need to know your paritionUUID before you exist archinstall / you can get it with any kind of live cd (WIN PE, ARCH INSTALL etc)
 - Install windows 
 - Add limine entry again bc windows will wipe the 1gb partition
 
-`cat /boot/limine.conf`:
+
+### `cat /boot/limine.conf`:
 
 ```
 ### Read more at config document: https://github.com/limine-bootloader/limine/blob/trunk/CONFIG.md
@@ -42,9 +43,8 @@ comment: machine-id=620472241dc54e68ab29afbe82324c65 order-priority=50
   image_path: boot():/EFI/Microsoft/Boot/bootmgfw.efi
 ```
 
-lta:
+### `lt /boot -L 3` :
 ```
- lt /boot -L 3
 drwxr-xr-x    - root  1 Jan  1970  /boot
 drwxr-xr-x    - root 20 Oct 09:00 ├──  620472241dc54e68ab29afbe82324c65
 drwxr-xr-x    - root 20 Oct 09:01 │   └──  limine_history
