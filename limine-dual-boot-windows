@@ -1,0 +1,78 @@
+Cloning from disk to disk:
+- Clone disk / partitions 
+- You need the ESP / EFI partition to have limine
+- Modify limine.conf on new disk to use correct PARTUUID= (no captial letters are allowed) so you need to know your paritionUUID before you exist archinstall / you can get it with any kind of live cd (WIN PE, ARCH INSTALL etc)
+- Install windows 
+- Add limine entry again bc windows will wipe the 1gb partition
+
+`cat /boot/limine.conf`:
+
+```
+### Read more at config document: https://github.com/limine-bootloader/limine/blob/trunk/CONFIG.md
+#timeout: 3
+default_entry: 2
+interface_branding: Omarchy Bootloader
+interface_branding_color: 2
+hash_mismatch_panic: no
+
+term_background: 1a1b26
+backdrop: 1a1b26
+
+# Terminal colors (Tokyo Night palette)
+term_palette: 15161e;f7768e;9ece6a;e0af68;7aa2f7;bb9af7;7dcfff;a9b1d6
+term_palette_bright: 414868;f7768e;9ece6a;e0af68;7aa2f7;bb9af7;7dcfff;c0caf5
+
+# Text colors
+term_foreground: c0caf5
+term_foreground_bright: c0caf5
+term_background_bright: 24283b
+
+/+Omarchy
+comment: Omarchy
+comment: machine-id=620472241dc54e68ab29afbe82324c65 order-priority=50
+  //linux
+  comment: 6.17.3-arch2-1
+  protocol: efi_chainload
+  image_path: boot():/EFI/Linux/omarchy_linux.efi#35688700bd88bb8ad8ef220d0a35b7e88dfab71aa0a6c6f6312b096ac3d5759057642f48139d293d49f339bf66f9f0a78b30eaab4c9baa7487027b2e30390bc6
+  kernel_cmdline: quiet splash cryptdevice=PARTUUID=4622a00a-b0ac-11f0-a932-b3719b12d09c:root root=/dev/mapper/root zswap.enabled=0 rootflags=subvol=@ rw rootfstype=btrfs
+
+/Windows
+  comment: Windows 11 Pro
+  protocol: efi
+  image_path: boot():/EFI/Microsoft/Boot/bootmgfw.efi
+```
+
+lta:
+```
+ lt /boot -L 3
+drwxr-xr-x    - root  1 Jan  1970  /boot
+drwxr-xr-x    - root 20 Oct 09:00 ├──  620472241dc54e68ab29afbe82324c65
+drwxr-xr-x    - root 20 Oct 09:01 │   └──  limine_history
+.rwxr-xr-x  243 root 20 Oct 13:56 │       ├──  snapshots.json
+.rwxr-xr-x  243 root 20 Oct 09:01 │       └──  snapshots.json.old
+.rwxr-xr-x 8.4M root 24 Oct 13:49 ├──  BackupSbb.bin
+drwxr-xr-x    - root 20 Oct 08:59 ├──  EFI
+drwxr-xr-x    - root 20 Oct 08:59 │   ├──  BOOT
+.rwxr-xr-x 254k root 20 Oct 08:59 │   │   └──  BOOTX64.EFI
+drwxr-xr-x    - root 20 Oct 08:59 │   ├──  limine
+.rwxr-xr-x 258k root 20 Oct 07:43 │   │   ├──  BOOTIA32.EFI
+.rwxr-xr-x 254k root 20 Oct 07:43 │   │   ├──  BOOTX64.EFI
+.rwxr-xr-x  571 root  8 Oct 15:34 │   │   ├── 󱁻 limine.conf
+.rwxr-xr-x 256k root 20 Oct 08:59 │   │   ├──  limine_x64.bak
+.rwxr-xr-x 254k root 20 Oct 08:59 │   │   └──  limine_x64.efi <---- target of EFI boot entry
+drwxr-xr-x    - root 20 Oct 09:00 │   ├──  Linux
+.rwxr-xr-x 239M root 13 Oct 18:05 │   │   └──  omarchy_linux.efi
+drwxr-xr-x    - root 24 Oct 14:16 │   └──  Microsoft
+drwxr-xr-x    - root 24 Oct 14:16 │       ├──  Boot
+drwxr-xr-x    - root 24 Oct 14:19 │       └──  Recovery
+.rwxr-xr-x 305M root 20 Oct 08:55 ├──  initramfs-linux-fallback.img
+.rwxr-xr-x 219M root 20 Oct 08:55 ├──  initramfs-linux.img
+.rwxr-xr-x  13M root 12 Aug 20:02 ├──  intel-ucode.img
+.rwxr-xr-x 1.2k root 24 Oct 14:51 ├── 󱁻 limine.conf
+.rwxr-xr-x  354 root 20 Oct 08:59 ├──  limine.conf.old
+drwxr-xr-x    - root 24 Oct 15:21 ├──  loader
+.rwxr-xr-x   32 root 24 Oct 15:21 │   └── 󰡯 random-seed
+.rwxr-xr-x  16M root 20 Oct 07:42 ├── 󰡯 vmlinuz-linux
+drwxr-xr-x    - root 21 Oct 17:19 └──  Windows
+.rwxr-xr-x  945 root 21 Oct 17:41     └──  GA_OF.dat
+```
