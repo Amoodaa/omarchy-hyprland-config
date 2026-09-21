@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+# Supply the auto-disable half of Omarchy's laptop-display toggle. Omarchy's
+# monitor watcher already recovers the internal panel when the external display
+# disappears.
+
+set -uo pipefail
+
+readonly disable_flag="$HOME/.local/state/omarchy/toggles/hypr/internal-monitor-disable.lua"
+readonly log_file="$HOME/.local/state/internal-display-auto.log"
+
+log() {
+  printf '%s %s\n' "$(date '+%F %T')" "$*" >>"$log_file"
+}
+
+internal_drm_enabled() {
+  local internal enabled
+  internal=$(omarchy hyprland monitor laptop)
+  [[ -n $internal ]] || return 1
+
+  for enabled in /sys/class/drm/card*-"$internal"/enabled; do
+    [[ -r $enabled && $(<"$enabled") == enabled ]] && return 0
+  done
+
+  return 1
+}
+
+apply() {
+  if ! omarchy hyprland monitor external active; then
+    log "no external display active; leaving recovery to Omarchy"
+    return
+  fi
+
+  # A persisted disable flag can prevent Hyprland from ever modesetting the
+  # panel during login. On this laptop that leaves DRM and the backlight powered
+  # despite Hyprland reporting the output as disabled. Briefly enable it so the
+  # normal toggle can perform a real enabled -> disabled power transition.
+  if [[ -f $disable_flag ]] && internal_drm_enabled; then
+    log "internal panel still powered; cycling it before disabling"
+    omarchy hyprland monitor internal on >/dev/null 2>&1
+    sleep 1
+  fi
+
+  omarchy hyprland monitor internal off >/dev/null 2>&1
+  log "external display active; internal panel disabled"
+}
+
+if [[ ${1:-} == apply ]]; then
+  apply
+  exit
+fi
+
+log "watcher started (pid $$)"
+apply
+
+readonly socket="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+
+while read -r event; do
+  case "$event" in
+    monitoradded\>\>* | monitoraddedv2\>\>*)
+      # Let Omarchy's own watcher finish its monitor reconciliation first.
+      sleep 3
+      apply
+      ;;
+  esac
+done < <(socat -U - "UNIX-CONNECT:$socket")

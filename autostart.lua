@@ -1,6 +1,9 @@
 -- Extra autostart processes.
 -- o.launch_on_start("my-service")
 
+-- Turn the internal laptop panel off while the main display is connected.
+o.exec_on_start(os.getenv("HOME") .. "/.config/hypr/scripts/internal-display-auto")
+
 -- Restore the previous session's windows.
 o.launch_on_start("hyprsession")
 
