@@ -17,14 +17,6 @@ hl.config({
   },
 })
 
--- Keep background applications from switching to their workspace when they
--- send an activation request (for example, Chrome on workspace 8).
-hl.config({
-  misc = {
-    focus_on_activate = false,
-  },
-})
-
 -- Fade animations disabled -- triggered a CMonitor segfault in Hyprland v0.54.2
 -- (damageMonitor dangling pointer). Re-enable if that is fixed upstream.
 hl.animation({ leaf = "fade", enabled = false })
